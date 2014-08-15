@@ -1,0 +1,22 @@
+{
+	"name": "damejidlo/cargo-client",
+	"type": "library",
+	"description": "",
+	"keywords": [],
+	"require": {
+		"nette/nette": "2.1.*@dev",
+
+		"kdyby/curl": "~2.1.0@dev"
+	},
+	"require-dev": {
+		"nette/tester": "@dev"
+	},
+	"autoload": {
+		"psr-0": {
+			"Logistics\\": "src/"
+		},
+		"classmap": [
+			"src/Logistics/exceptions.php"
+		]
+	}
+}
