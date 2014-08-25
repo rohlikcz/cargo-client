@@ -2,7 +2,7 @@
 
 namespace Logistics;
 
-use Damejidlo\Http;;
+use Damejidlo\Http;
 use Kdyby\Curl\Request;
 use Nette\Object;
 use Nette\Utils\Json;
@@ -72,13 +72,12 @@ class LogisticsClient extends Object
 
 	/**
 	 * @param int $remoteId
+	 * @param array $order
 	 * @throws BadResponseException
 	 */
-	public function cancelOrder($remoteId)
+	public function patchOrder($remoteId, array $order)
 	{
-		$payload = Json::encode([
-			'state' => 'canceled',
-		]);
+		$payload = Json::encode($order);
 
 		$request = $this->requestFactory->createRequest('orders/' . intval($remoteId), $payload)->setMethod(Http\Request::PATCH);
 		$request->headers['Content-Type'] = self::JSON_CONTENT_TYPE;
@@ -87,6 +86,19 @@ class LogisticsClient extends Object
 		if (($responseCode = $response->getCode()) !== Http\Response::S202_ACCEPTED) {
 			throw new BadResponseException('Expeced ' . Http\Response::S202_ACCEPTED . ' response code, ' . $responseCode . ' given.');
 		}
+	}
+
+
+
+	/**
+	 * @param int $remoteId
+	 * @throws BadResponseException
+	 */
+	public function cancelOrder($remoteId)
+	{
+		$this->patchOrder($remoteId, [
+			'state' => 'canceled',
+		]);
 	}
 
 }
