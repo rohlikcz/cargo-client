@@ -10,7 +10,7 @@ class MemoryTokenStorage extends Object implements ITokenStorage
 {
 
 	/**
-	 * @var array
+	 * @var Token[]
 	 */
 	private $tokens = [];
 
