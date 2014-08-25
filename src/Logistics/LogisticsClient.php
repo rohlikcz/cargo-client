@@ -2,7 +2,6 @@
 
 namespace Logistics;
 
-use Damejidlo\Http;
 use Kdyby\Curl\Request;
 use Nette\Object;
 use Nette\Utils\Json;
