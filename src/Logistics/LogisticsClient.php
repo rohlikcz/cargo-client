@@ -79,7 +79,7 @@ class LogisticsClient extends Object
 	{
 		$payload = Json::encode($order);
 
-		$request = $this->requestFactory->createRequest('orders/' . intval($remoteId), $payload)->setMethod(Http\Request::PATCH);
+		$request = $this->requestFactory->createRequest('orders/' . intval($remoteId), $payload)->setMethod(Request::PATCH);
 		$request->headers['Content-Type'] = self::JSON_CONTENT_TYPE;
 		$response = $this->connector->send($request);
 
