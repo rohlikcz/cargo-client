@@ -6,7 +6,7 @@ use Nette;
 
 
 
-class Response extends Nette\Http\Response
+class Response /* TODO - since Nette 2.2 extends Nette\Http\Response */
 {
 
 	const S201_CREATED = 201;
