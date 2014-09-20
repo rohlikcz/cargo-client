@@ -100,4 +100,24 @@ class LogisticsClient extends Object
 		]);
 	}
 
+
+
+	/**
+	 * @param int $remoteId
+	 * @param array $rating
+	 * @throws BadResponseException
+	 */
+	public function rateCourier($remoteId, array $rating)
+	{
+		$payload = Json::encode($rating);
+
+		$request = $this->requestFactory->createRequest('orders/' . intval($remoteId) . '/courier-rating', $payload)->setMethod(Request::PUT);
+		$request->headers['Content-Type'] = self::JSON_CONTENT_TYPE;
+		$response = $this->connector->send($request);
+
+		if (($responseCode = $response->getCode()) !== Http\Response::S202_ACCEPTED) {
+			throw new BadResponseException('Expeced ' . Http\Response::S202_ACCEPTED . ' response code, ' . $responseCode . ' given.');
+		}
+	}
+
 }
