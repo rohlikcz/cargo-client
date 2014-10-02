@@ -33,13 +33,15 @@ class LogisticsExtension extends CompilerExtension
 	public function loadConfiguration()
 	{
 		$config = $this->getConfig($this->defaults);
+		$builder = $this->getContainerBuilder();
 
 		$message = 'parameter % in LogisticsExtension configuration';
 		Validators::assertField($config, 'appId', 'string', $message);
 		Validators::assertField($config, 'secret', 'string', $message);
-		Validators::assertField($config, 'apiBaseUrl', 'url', $message);
-
-		$builder = $this->getContainerBuilder();
+		if (!$builder->parameters['debugMode']) {
+			Validators::assertField($config, 'apiBaseUrl', 'url', $message);
+			Validators::assertField($config, 'apiBaseUrl', 'pattern:https\:\/\/.*', $message);
+		}
 
 		$builder->addDefinition($this->prefix('consumer'))
 			->setClass(Consumer::class, [$config['appId'], $config['secret']]);
