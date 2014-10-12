@@ -2,12 +2,16 @@
 
 namespace Logistics;
 
-use DateTime;
 use Kdyby\Curl\Request;
 use Nette;
 use Nette\Object;
+use Nette\Utils\DateTime;
 
 
+
+if (!class_exists('Nette\Utils\DateTime')) {
+	class_alias('Nette\DateTime', 'Nette\Utils\DateTime');
+}
 
 class Token extends Object
 {
@@ -37,15 +41,15 @@ class Token extends Object
 	/**
 	 * @param string $token
 	 * @param string $appId
-	 * @param DateTime $expiresAt
-	 * @param DateTime $issuedAt
+	 * @param \DateTime $expiresAt
+	 * @param \DateTime $issuedAt
 	 */
-	public function __construct($token, $appId, DateTime $expiresAt, DateTime $issuedAt = NULL)
+	public function __construct($token, $appId, \DateTime $expiresAt, \DateTime $issuedAt = NULL)
 	{
 		$this->token = $token;
 		$this->appId = $appId;
-		$this->expiresAt = clone $expiresAt;
-		$this->issuedAt = Nette\DateTime::from($issuedAt);
+		$this->expiresAt = DateTime::from($expiresAt);
+		$this->issuedAt = DateTime::from($issuedAt);
 	}
 
 
@@ -61,7 +65,7 @@ class Token extends Object
 
 
 	/**
-	 * @return DateTime
+	 * @return \DateTime
 	 */
 	public function getExpiresAt()
 	{
@@ -71,18 +75,18 @@ class Token extends Object
 
 
 	/**
-	 * @param DateTime $now
+	 * @param \DateTime $now
 	 * @return bool
 	 */
-	public function isExpired(DateTime $now = NULL)
+	public function isExpired(\DateTime $now = NULL)
 	{
-		return $this->expiresAt <= Nette\DateTime::from($now);
+		return $this->expiresAt <= DateTime::from($now);
 	}
 
 
 
 	/**
-	 * @return DateTime
+	 * @return \DateTime
 	 */
 	public function getIssuedAt()
 	{
