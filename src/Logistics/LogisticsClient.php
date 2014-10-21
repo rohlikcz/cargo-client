@@ -120,4 +120,18 @@ class LogisticsClient extends Object
 		}
 	}
 
+
+
+	public function getArrivals()
+	{
+		$request = $this->requestFactory->createRequest('arrivals')->setMethod(Request::GET);
+		$response = $this->connector->send($request);
+
+		if (($responseCode = $response->getCode()) !== Http\Response::S200_OK) {
+			throw new BadResponseException('Expeced ' . Http\Response::S200_OK . ' response code, ' . $responseCode . ' given.');
+		}
+
+		return Json::decode($response, TRUE);
+	}
+
 }
