@@ -3,6 +3,7 @@
 namespace Logistics;
 
 use Kdyby\Curl\Request;
+use Nette\Http\Response;
 use Nette\Object;
 use Nette\Utils\Json;
 
@@ -127,8 +128,8 @@ class LogisticsClient extends Object
 		$request = $this->requestFactory->createRequest('arrivals')->setMethod(Request::GET);
 		$response = $this->connector->send($request);
 
-		if (($responseCode = $response->getCode()) !== Http\Response::S200_OK) {
-			throw new BadResponseException('Expeced ' . Http\Response::S200_OK . ' response code, ' . $responseCode . ' given.');
+		if (($responseCode = $response->getCode()) !== Response::S200_OK) {
+			throw new BadResponseException('Expeced ' . Response::S200_OK . ' response code, ' . $responseCode . ' given.');
 		}
 
 		return Json::decode($response, TRUE);
