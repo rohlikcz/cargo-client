@@ -132,7 +132,7 @@ class LogisticsClient extends Object
 			throw new BadResponseException('Expeced ' . Response::S200_OK . ' response code, ' . $responseCode . ' given.');
 		}
 
-		return Json::decode($response, TRUE);
+		return Json::decode($response->response, TRUE);
 	}
 
 }
