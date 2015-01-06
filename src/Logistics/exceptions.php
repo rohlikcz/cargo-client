@@ -45,3 +45,9 @@ class InvalidConfigException extends Exception implements IException
 class BadResponseException extends Exception implements IException
 {
 }
+
+
+
+class BadResponseCodeException extends BadResponseException
+{
+}

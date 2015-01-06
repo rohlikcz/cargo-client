@@ -148,7 +148,7 @@ class LogisticsClient extends Object
 
 	private function unexpectedResponseCode($responseCode, $expected = Response::S200_OK)
 	{
-		throw new BadResponseException("Expected '{$expected}' response code, '{$responseCode}' given.");
+		throw new BadResponseCodeException("Expected '{$expected}' response code, '{$responseCode}' given.");
 	}
 
 }
