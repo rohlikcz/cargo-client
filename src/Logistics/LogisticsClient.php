@@ -2,6 +2,7 @@
 
 namespace Logistics;
 
+use Kdyby\Curl\BadStatusException;
 use Kdyby\Curl\Request;
 use Nette\Http\Response;
 use Nette\Object;
@@ -84,7 +85,7 @@ class LogisticsClient extends Object
 		$response = $this->connector->send($request);
 
 		if (($responseCode = $response->getCode()) !== Http\Response::S202_ACCEPTED) {
-			throw new BadResponseException('Expeced ' . Http\Response::S202_ACCEPTED . ' response code, ' . $responseCode . ' given.');
+			$this->unexpectedResponseCode($responseCode);
 		}
 	}
 
@@ -117,7 +118,7 @@ class LogisticsClient extends Object
 		$response = $this->connector->send($request);
 
 		if (($responseCode = $response->getCode()) !== Http\Response::S202_ACCEPTED) {
-			throw new BadResponseException('Expeced ' . Http\Response::S202_ACCEPTED . ' response code, ' . $responseCode . ' given.');
+			$this->unexpectedResponseCode($responseCode);
 		}
 	}
 
@@ -126,13 +127,28 @@ class LogisticsClient extends Object
 	public function getArrivals()
 	{
 		$request = $this->requestFactory->createRequest('arrivals')->setMethod(Request::GET);
-		$response = $this->connector->send($request);
+		try {
+			$response = $this->connector->send($request);
+		} catch (BadStatusException $e) {
+			$this->unexpectedResponseCode($e->getResponse()->getCode());
+
+			return FALSE;
+		}
 
 		if (($responseCode = $response->getCode()) !== Response::S200_OK) {
-			throw new BadResponseException('Expeced ' . Response::S200_OK . ' response code, ' . $responseCode . ' given.');
+			$this->unexpectedResponseCode($responseCode);
+
+			return FALSE;
 		}
 
 		return Json::decode($response->response, TRUE);
+	}
+
+
+
+	private function unexpectedResponseCode($responseCode, $expected = Response::S200_OK)
+	{
+		throw new BadResponseCodeException("Expected '{$expected}' response code, '{$responseCode}' given.");
 	}
 
 }
