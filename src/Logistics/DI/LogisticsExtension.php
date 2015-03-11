@@ -9,6 +9,7 @@ use Logistics\LogisticsClient;
 use Logistics\MemoryTokenStorage;
 use Logistics\RequestFactory;
 use Nette\DI\CompilerExtension;
+use Nette\DI\Config\Helpers;
 use Nette\Utils\Validators;
 
 
@@ -32,7 +33,50 @@ class LogisticsExtension extends CompilerExtension
 	 */
 	public function loadConfiguration()
 	{
-		$config = $this->getConfig($this->defaults);
+		$builder = $this->getContainerBuilder();
+		$config = $this->getConfig();
+
+		if (!array_key_exists('tokenStorage', $config)) {
+			$builder->addDefinition($tokenStorageName = $this->prefix('tokenFactory'))
+				->setClass(MemoryTokenStorage::class);
+
+			$tokenStorageReference = self::formatServiceReference($tokenStorageName);
+
+		} else {
+			// touch reference to validate it
+			if (!$builder->getServiceName($tokenStorageReference = $config['tokenStorage'])) {
+				throw new InvalidConfigException("Invalid reference to service implementing ITokenStorage given: $config[tokenStorage]");
+			}
+		}
+
+		if (array_key_exists('clients', $config) && is_array($config['clients'])) {
+			foreach ($config['clients'] as $name => $clientConfig) {
+				$this->configureClient(
+					Helpers::merge($clientConfig, $builder->expand($this->defaults)),
+					$tokenStorageReference,
+					$name
+				);
+			}
+
+		} else {
+			$this->configureClient(
+				Helpers::merge($config, $builder->expand($this->defaults)),
+				$tokenStorageReference
+			);
+		}
+	}
+
+
+
+	/**
+	 * @param array $config
+	 * @param string $tokenStorageReference
+	 * @param string|NULL $name
+	 * @throws InvalidConfigException
+	 */
+	private function configureClient(array $config, $tokenStorageReference, $name = NULL)
+	{
+		$name = $name !== NULL ? ".$name" : '';
 		$builder = $this->getContainerBuilder();
 
 		$message = 'parameter % in LogisticsExtension configuration';
@@ -43,37 +87,49 @@ class LogisticsExtension extends CompilerExtension
 			Validators::assertField($config, 'apiBaseUrl', 'pattern:https\:\/\/.*', $message);
 		}
 
-		$builder->addDefinition($this->prefix('consumer'))
-			->setClass(Consumer::class, [$config['appId'], $config['secret']]);
+		$builder->addDefinition($consumerName = $this->prefix("consumer$name"))
+			->setClass(Consumer::class, [$config['appId'], $config['secret']])
+			->setAutowired(FALSE);
+
+		$consumerRefernce = self::formatServiceReference($consumerName);
 
 		if (!array_key_exists('requestFactory', $config)) {
-			$builder->addDefinition($this->prefix('requestFactory'))
-				->setClass(RequestFactory::class)
-				->setArguments([$config['apiBaseUrl']]);
+			$builder->addDefinition($requestFactoryName = $this->prefix("requestFactory$name"))
+				->setClass(RequestFactory::class, [$config['apiBaseUrl']])
+				->setAutowired(FALSE);
+
+			$requestFactoryReference = self::formatServiceReference($requestFactoryName);
 
 		} else {
 			// touch reference to validate it
-			if (!$builder->getServiceName($config['requestFactory'])) {
+			if (!$builder->getServiceName($requestFactoryReference = $config['requestFactory'])) {
 				throw new InvalidConfigException("Invalid reference to service implementing IRequestFactory given: $config[requestFactory]");
 			}
 		}
 
-		if (!array_key_exists('tokenStorage', $config)) {
-			$builder->addDefinition($this->prefix('tokenFactory'))
-				->setClass(MemoryTokenStorage::class);
+		$builder->addDefinition($connectorName = $this->prefix("connector$name"))
+			->setClass(Connector::class, [$consumerRefernce, $tokenStorageReference, $requestFactoryReference])
+			->setAutowired(FALSE);
 
-		} else {
-			// touch reference to validate it
-			if (!$builder->getServiceName($config['tokenStorage'])) {
-				throw new InvalidConfigException("Invalid reference to service implementing ITokenStorage given: $config[tokenStorage]");
-			}
+		$connectorReference = self::formatServiceReference($connectorName);
+
+		$logisticsClientDefiniton = $builder->addDefinition($this->prefix("logisticsClient$name"))
+			->setClass(LogisticsClient::class, [$connectorReference, $requestFactoryReference]);
+
+		if ($name !== '') {
+			$logisticsClientDefiniton->setAutowired(FALSE);
 		}
+	}
 
-		$builder->addDefinition($this->prefix('connector'))
-			->setClass(Connector::class);
 
-		$builder->addDefinition($this->prefix('logisticsClient'))
-			->setClass(LogisticsClient::class);
+
+	/**
+	 * @param string $name
+	 * @return string
+	 */
+	private static function formatServiceReference($name)
+	{
+		return '@' . $name;
 	}
 
 }
