@@ -5,8 +5,8 @@
 	"keywords": [],
 	"require": {
 		"php": ">= 5.5.0",
-		"nette/nette": "~2.1.0",
-		"kdyby/curl": "~2.1.0"
+		"nette/nette": "~2.2.0",
+		"kdyby/curl": "~2.2.0"
 	},
 	"require-dev": {
 		"nette/tester": "@dev",
