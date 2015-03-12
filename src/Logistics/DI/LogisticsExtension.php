@@ -37,14 +37,12 @@ class LogisticsExtension extends CompilerExtension
 		$config = $this->getConfig();
 
 		if (!array_key_exists('tokenStorage', $config)) {
-			$builder->addDefinition($tokenStorageName = $this->prefix('tokenFactory'))
+			$tokenStorageDefinition =  $builder->addDefinition($tokenStorageName = $this->prefix('tokenFactory'))
 				->setClass(MemoryTokenStorage::class);
-
-			$tokenStorageReference = self::formatServiceReference($tokenStorageName);
 
 		} else {
 			// touch reference to validate it
-			if (!$builder->getServiceName($tokenStorageReference = $config['tokenStorage'])) {
+			if (!$builder->getServiceName($tokenStorageDefinition = $config['tokenStorage'])) {
 				throw new InvalidConfigException("Invalid reference to service implementing ITokenStorage given: $config[tokenStorage]");
 			}
 		}
@@ -53,7 +51,7 @@ class LogisticsExtension extends CompilerExtension
 			foreach ($config['clients'] as $name => $clientConfig) {
 				$this->configureClient(
 					Helpers::merge($clientConfig, $builder->expand($this->defaults)),
-					$tokenStorageReference,
+					$tokenStorageDefinition,
 					$name
 				);
 			}
@@ -61,7 +59,7 @@ class LogisticsExtension extends CompilerExtension
 		} else {
 			$this->configureClient(
 				Helpers::merge($config, $builder->expand($this->defaults)),
-				$tokenStorageReference
+				$tokenStorageDefinition
 			);
 		}
 	}
@@ -70,11 +68,11 @@ class LogisticsExtension extends CompilerExtension
 
 	/**
 	 * @param array $config
-	 * @param string $tokenStorageReference
+	 * @param string $tokenStorageDefinition
 	 * @param string|NULL $name
 	 * @throws InvalidConfigException
 	 */
-	private function configureClient(array $config, $tokenStorageReference, $name = NULL)
+	private function configureClient(array $config, $tokenStorageDefinition, $name = NULL)
 	{
 		$name = $name !== NULL ? ".$name" : '';
 		$builder = $this->getContainerBuilder();
@@ -87,49 +85,32 @@ class LogisticsExtension extends CompilerExtension
 			Validators::assertField($config, 'apiBaseUrl', 'pattern:https\:\/\/.*', $message);
 		}
 
-		$builder->addDefinition($consumerName = $this->prefix("consumer$name"))
+		$consumerDefinition = $builder->addDefinition($consumerName = $this->prefix("consumer$name"))
 			->setClass(Consumer::class, [$config['appId'], $config['secret']])
 			->setAutowired(FALSE);
 
-		$consumerRefernce = self::formatServiceReference($consumerName);
-
 		if (!array_key_exists('requestFactory', $config)) {
-			$builder->addDefinition($requestFactoryName = $this->prefix("requestFactory$name"))
+			$requestFactoryDefinition = $builder->addDefinition($requestFactoryName = $this->prefix("requestFactory$name"))
 				->setClass(RequestFactory::class, [$config['apiBaseUrl']])
 				->setAutowired(FALSE);
 
-			$requestFactoryReference = self::formatServiceReference($requestFactoryName);
-
 		} else {
 			// touch reference to validate it
-			if (!$builder->getServiceName($requestFactoryReference = $config['requestFactory'])) {
+			if (!$builder->getServiceName($requestFactoryDefinition = $config['requestFactory'])) {
 				throw new InvalidConfigException("Invalid reference to service implementing IRequestFactory given: $config[requestFactory]");
 			}
 		}
 
-		$builder->addDefinition($connectorName = $this->prefix("connector$name"))
-			->setClass(Connector::class, [$consumerRefernce, $tokenStorageReference, $requestFactoryReference])
+		$connectorDefinition = $builder->addDefinition($connectorName = $this->prefix("connector$name"))
+			->setClass(Connector::class, [$consumerDefinition, $tokenStorageDefinition, $requestFactoryDefinition])
 			->setAutowired(FALSE);
 
-		$connectorReference = self::formatServiceReference($connectorName);
-
 		$logisticsClientDefiniton = $builder->addDefinition($this->prefix("logisticsClient$name"))
-			->setClass(LogisticsClient::class, [$connectorReference, $requestFactoryReference]);
+			->setClass(LogisticsClient::class, [$connectorDefinition, $requestFactoryDefinition]);
 
 		if ($name !== '') {
 			$logisticsClientDefiniton->setAutowired(FALSE);
 		}
-	}
-
-
-
-	/**
-	 * @param string $name
-	 * @return string
-	 */
-	private static function formatServiceReference($name)
-	{
-		return '@' . $name;
 	}
 
 }
