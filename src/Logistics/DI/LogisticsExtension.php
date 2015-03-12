@@ -6,10 +6,12 @@ use Logistics\Connector;
 use Logistics\Consumer;
 use Logistics\InvalidConfigException;
 use Logistics\LogisticsClient;
+use Logistics\LogisticsClientsPool;
 use Logistics\MemoryTokenStorage;
 use Logistics\RequestFactory;
 use Nette\DI\CompilerExtension;
 use Nette\DI\Config\Helpers;
+use Nette\DI\ServiceDefinition;
 use Nette\Utils\Validators;
 
 
@@ -48,13 +50,16 @@ class LogisticsExtension extends CompilerExtension
 		}
 
 		if (array_key_exists('clients', $config) && is_array($config['clients'])) {
+			$clients = [];
 			foreach ($config['clients'] as $name => $clientConfig) {
-				$this->configureClient(
+				$clients[$name] = $this->configureClient(
 					Helpers::merge($clientConfig, $builder->expand($this->defaults)),
 					$tokenStorageDefinition,
 					$name
 				);
 			}
+
+			$this->configureClientsPool($clients);
 
 		} else {
 			$this->configureClient(
@@ -70,6 +75,7 @@ class LogisticsExtension extends CompilerExtension
 	 * @param array $config
 	 * @param string $tokenStorageDefinition
 	 * @param string|NULL $name
+	 * @return ServiceDefinition
 	 * @throws InvalidConfigException
 	 */
 	private function configureClient(array $config, $tokenStorageDefinition, $name = NULL)
@@ -111,6 +117,19 @@ class LogisticsExtension extends CompilerExtension
 		if ($name !== '') {
 			$logisticsClientDefiniton->setAutowired(FALSE);
 		}
+
+		return $logisticsClientDefiniton;
+	}
+
+
+
+	/**
+	 * @param ServiceDefinition[] $clients
+	 */
+	private function configureClientsPool(array $clients)
+	{
+		$this->getContainerBuilder()->addDefinition($this->prefix('logisticsClientsPool'))
+			->setClass(LogisticsClientsPool::class, [$clients]);
 	}
 
 }
