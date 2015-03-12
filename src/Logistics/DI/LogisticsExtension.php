@@ -126,7 +126,7 @@ class LogisticsExtension extends CompilerExtension
 	/**
 	 * @param ServiceDefinition[] $clients
 	 */
-	private function configureClientsPool(array $clients)
+	protected function configureClientsPool(array $clients)
 	{
 		$this->getContainerBuilder()->addDefinition($this->prefix('logisticsClientsPool'))
 			->setClass(LogisticsClientsPool::class, [$clients]);
