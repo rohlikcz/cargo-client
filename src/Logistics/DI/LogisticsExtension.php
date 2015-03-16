@@ -39,7 +39,7 @@ class LogisticsExtension extends CompilerExtension
 		$config = $this->getConfig();
 
 		if (!array_key_exists('tokenStorage', $config)) {
-			$tokenStorageDefinition =  $builder->addDefinition($tokenStorageName = $this->prefix('tokenFactory'))
+			$tokenStorageDefinition =  $builder->addDefinition($this->prefix('tokenFactory'))
 				->setClass(MemoryTokenStorage::class);
 
 		} else {
@@ -91,12 +91,12 @@ class LogisticsExtension extends CompilerExtension
 			Validators::assertField($config, 'apiBaseUrl', 'pattern:https\:\/\/.*', $message);
 		}
 
-		$consumerDefinition = $builder->addDefinition($consumerName = $this->prefix("consumer$name"))
+		$consumerDefinition = $builder->addDefinition($this->prefix("consumer$name"))
 			->setClass(Consumer::class, [$config['appId'], $config['secret']])
 			->setAutowired(FALSE);
 
 		if (!array_key_exists('requestFactory', $config)) {
-			$requestFactoryDefinition = $builder->addDefinition($requestFactoryName = $this->prefix("requestFactory$name"))
+			$requestFactoryDefinition = $builder->addDefinition($this->prefix("requestFactory$name"))
 				->setClass(RequestFactory::class, [$config['apiBaseUrl']])
 				->setAutowired(FALSE);
 
@@ -107,7 +107,7 @@ class LogisticsExtension extends CompilerExtension
 			}
 		}
 
-		$connectorDefinition = $builder->addDefinition($connectorName = $this->prefix("connector$name"))
+		$connectorDefinition = $builder->addDefinition($this->prefix("connector$name"))
 			->setClass(Connector::class, [$consumerDefinition, $tokenStorageDefinition, $requestFactoryDefinition])
 			->setAutowired(FALSE);
 
