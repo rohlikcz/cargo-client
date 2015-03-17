@@ -51,3 +51,8 @@ class BadResponseException extends Exception implements IException
 class BadResponseCodeException extends BadResponseException
 {
 }
+
+
+class ClientNotFoundException extends RuntimeException
+{
+}
