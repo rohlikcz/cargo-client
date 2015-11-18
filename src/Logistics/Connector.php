@@ -8,7 +8,7 @@ use Kdyby\Curl\CurlException;
 use Kdyby\Curl\CurlSender;
 use Kdyby\Curl\Request;
 use Kdyby\Curl\Response;
-use Nette\Diagnostics\Debugger;
+use Tracy\Debugger;
 use Nette\Object;
 use Nette\Utils\Json;
 
