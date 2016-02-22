@@ -84,7 +84,7 @@ class LogisticsClient extends Object
 		$request->headers['Content-Type'] = self::JSON_CONTENT_TYPE;
 		$response = $this->connector->send($request);
 
-		if (($responseCode = $response->getCode()) !== Http\Response::S202_ACCEPTED) {
+		if (($responseCode = $response->getCode()) !== Response::S202_ACCEPTED) {
 			$this->unexpectedResponseCode($responseCode);
 		}
 	}
@@ -117,7 +117,7 @@ class LogisticsClient extends Object
 		$request->headers['Content-Type'] = self::JSON_CONTENT_TYPE;
 		$response = $this->connector->send($request);
 
-		if (($responseCode = $response->getCode()) !== Http\Response::S202_ACCEPTED) {
+		if (($responseCode = $response->getCode()) !== Response::S202_ACCEPTED) {
 			$this->unexpectedResponseCode($responseCode);
 		}
 	}
