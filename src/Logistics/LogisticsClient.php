@@ -146,6 +146,35 @@ class LogisticsClient extends Object
 
 
 
+	/**
+	 * @param int $id
+	 * @return float workload in percent
+	 */
+	public function getCourierGroupWorkload($id)
+	{
+		$request = $this->requestFactory->createRequest('courier-groups/' . $id . '/workload')->setMethod(Request::GET);
+
+		try {
+			$response = $this->connector->send($request);
+		} catch (BadStatusException $e) {
+			$this->unexpectedResponseCode($e->getResponse()->getCode());
+
+			return FALSE;
+		}
+
+		if (($responseCode = $response->getCode()) !== Response::S200_OK) {
+			$this->unexpectedResponseCode($responseCode);
+
+			return FALSE;
+		}
+
+		$workload = Json::decode($response->response, TRUE)['workload'];
+
+		return $workload === NULL ? NULL : (float) $workload;
+	}
+
+
+
 	private function unexpectedResponseCode($responseCode, $expected = Response::S200_OK)
 	{
 		throw new BadResponseCodeException("Expected '{$expected}' response code, '{$responseCode}' given.");
