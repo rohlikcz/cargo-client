@@ -131,14 +131,10 @@ class LogisticsClient extends Object
 			$response = $this->connector->send($request);
 		} catch (BadStatusException $e) {
 			$this->unexpectedResponseCode($e->getResponse()->getCode());
-
-			return FALSE;
 		}
 
 		if (($responseCode = $response->getCode()) !== Response::S200_OK) {
 			$this->unexpectedResponseCode($responseCode);
-
-			return FALSE;
 		}
 
 		return Json::decode($response->response, TRUE);
@@ -158,14 +154,10 @@ class LogisticsClient extends Object
 			$response = $this->connector->send($request);
 		} catch (BadStatusException $e) {
 			$this->unexpectedResponseCode($e->getResponse()->getCode());
-
-			return FALSE;
 		}
 
 		if (($responseCode = $response->getCode()) !== Response::S200_OK) {
 			$this->unexpectedResponseCode($responseCode);
-
-			return FALSE;
 		}
 
 		$workload = Json::decode($response->response, TRUE)['workload'];
