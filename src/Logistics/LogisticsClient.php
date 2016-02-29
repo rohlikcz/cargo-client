@@ -148,7 +148,7 @@ class LogisticsClient extends Object
 	 */
 	public function getCourierGroupWorkload($id)
 	{
-		$request = $this->requestFactory->createRequest('courier-groups/' . $id . '/workload')->setMethod(Request::GET);
+		$request = $this->requestFactory->createRequest('courier-groups/' . intval($id) . '/workload')->setMethod(Request::GET);
 
 		try {
 			$response = $this->connector->send($request);
