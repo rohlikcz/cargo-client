@@ -84,7 +84,7 @@ class LogisticsClient extends Object
 		$request->headers['Content-Type'] = self::JSON_CONTENT_TYPE;
 		$response = $this->connector->send($request);
 
-		if (($responseCode = $response->getCode()) !== Http\Response::S202_ACCEPTED) {
+		if (($responseCode = $response->getCode()) !== Response::S202_ACCEPTED) {
 			$this->unexpectedResponseCode($responseCode);
 		}
 	}
@@ -117,7 +117,7 @@ class LogisticsClient extends Object
 		$request->headers['Content-Type'] = self::JSON_CONTENT_TYPE;
 		$response = $this->connector->send($request);
 
-		if (($responseCode = $response->getCode()) !== Http\Response::S202_ACCEPTED) {
+		if (($responseCode = $response->getCode()) !== Response::S202_ACCEPTED) {
 			$this->unexpectedResponseCode($responseCode);
 		}
 	}
@@ -131,17 +131,38 @@ class LogisticsClient extends Object
 			$response = $this->connector->send($request);
 		} catch (BadStatusException $e) {
 			$this->unexpectedResponseCode($e->getResponse()->getCode());
-
-			return FALSE;
 		}
 
 		if (($responseCode = $response->getCode()) !== Response::S200_OK) {
 			$this->unexpectedResponseCode($responseCode);
-
-			return FALSE;
 		}
 
 		return Json::decode($response->response, TRUE);
+	}
+
+
+
+	/**
+	 * @param int $id
+	 * @return float workload in percent
+	 */
+	public function getCourierGroupWorkload($id)
+	{
+		$request = $this->requestFactory->createRequest('courier-groups/' . intval($id) . '/workload')->setMethod(Request::GET);
+
+		try {
+			$response = $this->connector->send($request);
+		} catch (BadStatusException $e) {
+			$this->unexpectedResponseCode($e->getResponse()->getCode());
+		}
+
+		if (($responseCode = $response->getCode()) !== Response::S200_OK) {
+			$this->unexpectedResponseCode($responseCode);
+		}
+
+		$workload = Json::decode($response->response, TRUE)['workload'];
+
+		return $workload === NULL ? NULL : (float) $workload;
 	}
 
 
