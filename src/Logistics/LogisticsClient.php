@@ -6,6 +6,7 @@ use Kdyby\Curl\BadStatusException;
 use Kdyby\Curl\Request;
 use Nette\Http\Response;
 use Nette\Object;
+use Nette\Utils\ArrayHash;
 use Nette\Utils\Json;
 
 
@@ -144,7 +145,7 @@ class LogisticsClient extends Object
 
 	/**
 	 * @param int $id
-	 * @return float workload in percent
+	 * @return ArrayHash|NULL
 	 */
 	public function getCourierGroupWorkload($id)
 	{
@@ -160,9 +161,9 @@ class LogisticsClient extends Object
 			$this->unexpectedResponseCode($responseCode);
 		}
 
-		$workload = Json::decode($response->response, TRUE)['workload'];
+		$workload = Json::decode($response->response, TRUE);
 
-		return $workload === NULL ? NULL : (float) $workload;
+		return $workload === NULL ? NULL : ArrayHash::from($workload);
 	}
 
 
