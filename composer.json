@@ -5,10 +5,10 @@
 	"keywords": [],
 	"require": {
 		"php": ">= 5.5.0",
-		"nette/http": "~2.1@dev",
-		"nette/di": "~2.1@dev",
-		"tracy/tracy": "~2.1@dev",
-		"kdyby/curl": "~2.1@dev"
+		"nette/http": "~2.3",
+		"nette/di": "~2.3",
+		"tracy/tracy": "~2.3",
+		"kdyby/curl": "~2.3"
 	},
 	"require-dev": {
 		"nette/tester": "@dev",
