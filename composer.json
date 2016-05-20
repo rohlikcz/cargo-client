@@ -8,7 +8,7 @@
 		"nette/http": "~2.3",
 		"nette/di": "~2.3",
 		"tracy/tracy": "~2.3",
-		"kdyby/curl": "~2.3"
+		"kdyby/curl": "~2.2"
 	},
 	"require-dev": {
 		"nette/tester": "@dev",
