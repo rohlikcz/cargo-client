@@ -1,18 +1,16 @@
 <?php
 
 /**
- * Test: Logistics\Token
- *
  * @testCase LogisticsTests\TokenTest
  */
 
 namespace LogisticsTests;
 
+require_once __DIR__ . '/../bootstrap.php';
+
 use Logistics\Token;
 use Tester\Assert;
 use Tester\TestCase;
-
-require_once __DIR__ . '/../bootstrap.php';
 
 
 
@@ -30,6 +28,9 @@ class TokenTest extends TestCase
 
 	/**
 	 * @dataProvider provideIsExpired
+	 * @param bool $expected
+	 * @param string $expiresAt
+	 * @param string $now
 	 */
 	public function testIsExpired($expected, $expiresAt, $now)
 	{
@@ -53,4 +54,4 @@ class TokenTest extends TestCase
 
 
 
-\run(new TokenTest());
+(new TokenTest())->run();
