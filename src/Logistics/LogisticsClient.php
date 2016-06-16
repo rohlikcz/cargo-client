@@ -77,6 +77,26 @@ class LogisticsClient extends Object
 	 * @param array $order
 	 * @throws BadResponseException
 	 */
+	public function updateOrder($remoteId, array $order)
+	{
+		$payload = Json::encode($order);
+
+		$request = $this->requestFactory->createRequest('orders/' . intval($remoteId), $payload)->setMethod(Request::PUT);
+		$request->headers['Content-Type'] = self::JSON_CONTENT_TYPE;
+		$response = $this->connector->send($request);
+
+		if (($responseCode = $response->getCode()) !== Response::S202_ACCEPTED) {
+			$this->unexpectedResponseCode($responseCode);
+		}
+	}
+
+
+
+	/**
+	 * @param int $remoteId
+	 * @param array $order
+	 * @throws BadResponseException
+	 */
 	public function patchOrder($remoteId, array $order)
 	{
 		$payload = Json::encode($order);
